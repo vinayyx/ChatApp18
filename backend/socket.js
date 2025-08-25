@@ -5,13 +5,17 @@ import onlineUsers from "./store.js";
 
 export const initSocket = (io) => {
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
 
     // Join socket
     socket.on("join", ({ username }) => {
       onlineUsers[username] = socket.id;
       io.emit("onlineUsers", Object.keys(onlineUsers));
+
+          console.log( onlineUsers[username])
+
     });
+
+    
 
     // Send public message
     socket.on("publicMessage", async ({ fromUser, message }) => {
@@ -28,8 +32,16 @@ export const initSocket = (io) => {
       if (onlineUsers[toUser]) {
         io.to(onlineUsers[toUser]).emit("privateMessage", msg);
       }
+      
+
+      if (onlineUsers[fromUser]) {
+        io.to(onlineUsers[fromUser]).emit("privateMessage", msg);
+      }
       io.emit("privateMessage", msg); // sender also sees it
     });
+
+
+  
 
     // Disconnect
     socket.on("disconnect", () => {
