@@ -16,6 +16,13 @@ function PrivateChat({ toUser, onClose }) {
     scrollToBottom();
   }, [messages]);
 
+  useEffect(() => {
+  const currentUser = localStorage.getItem("username");
+  if (currentUser) {
+    socket.emit("register", currentUser);
+  }
+}, []);
+
   // Fetch previous messages on load
   useEffect(() => {
     const fetchMessages = async () => {
@@ -53,21 +60,25 @@ function PrivateChat({ toUser, onClose }) {
     };
   }, [toUser, currentUser]);
 
-  const sendPrivateMessage = () => {
-    if (newMsg.trim()) {
-      const msgData = {
-        fromUser: currentUser,
-        toUser,
-        message: newMsg,
-        createdAt: new Date().toISOString(),
-      };
+ const sendPrivateMessage = () => {
+  if (newMsg.trim()) {
+    const msgData = {
+      fromUser: currentUser,
+      toUser,
+      message: newMsg,
+      createdAt: new Date().toISOString(),
+    };
 
-      // Emit to backend only (UI update will come from socket event)
-      socket.emit("privateMessage", msgData);
+    // 👇 Emit to backend
+    socket.emit("privateMessage", msgData);
 
-      setNewMsg("");
-    }
-  };
+    // 👇 UI turant update (optimistic update)
+    setMessages((prev) => [...prev, msgData]);
+
+    setNewMsg("");
+  }
+};
+
 
   return (
     <div className="fixed bottom-4 right-4 w-72 h-96 flex flex-col shadow-lg rounded-lg bg-gray-900 text-white border border-gray-700">
