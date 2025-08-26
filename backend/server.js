@@ -12,6 +12,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js"
 import dashboard from "./routes/dashboardRoutes.js"
 import allchatRoutes from "./routes/allchatRoutes.js";
+import allNotification from "./routes/notificationRoutes.js"
 
 
 
@@ -23,6 +24,8 @@ connectDB();
 
 const app = express();
 const server = http.createServer(app); // <- HTTP server for socket.io
+
+
 
 
 
@@ -46,6 +49,7 @@ app.use("/api", chatRoutes);
 app.use("/api", reportRoutes)
 app.use("/db",  dashboard )
 app.use("/api/chats", allchatRoutes);
+app.use("/api", allNotification  )
 
 
 

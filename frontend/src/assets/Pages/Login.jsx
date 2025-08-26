@@ -33,6 +33,8 @@ function Login() {
       // Save username in localStorage (to show in chat)
       localStorage.setItem("username", user.username);
 
+      localStorage.setItem("userId" , user._id )
+
       // Navigate to chat window (example route)
       navigate("/chat");
     } catch (err) {

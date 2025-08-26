@@ -23,7 +23,9 @@ function UserProfile() {
         </div>
         <div>
           <p className="font-semibold text-gray-800">{username}</p>
-          <p className="text-sm text-gray-500">{isGuest ? "Guest" : "Verified"}</p>
+          <p className="text-sm text-gray-500">
+            {isGuest ? "Guest" : "Verified"}
+          </p>
         </div>
         <div className="ml-auto text-green-500">✔</div>
       </div>
