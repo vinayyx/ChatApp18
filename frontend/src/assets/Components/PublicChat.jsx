@@ -3,6 +3,7 @@ import EmojiPicker from "emoji-picker-react";
 import { io } from "socket.io-client";
 import SmallChatWindow from "./SmallChatWindow";
 import UserOptionsPopup from "./UserOptionsPopup";
+  import Spinner from "../ui/Spinner"
 
 const socket = io(import.meta.env.VITE_BACKEND_URL);
 
@@ -64,6 +65,7 @@ function PublicChat() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [optionsUser, setOptionsUser] = useState(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
+  const [Loading, setLoading] = useState(false)
 
   const messagesEndRef = useRef(null);
 
@@ -79,12 +81,15 @@ function PublicChat() {
 
     const fetchMessages = async () => {
       try {
+         setLoading(true); 
         const res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/messages/public`);
         const data = await res.json();
         setChats(data);
       } catch (err) {
         console.error(err);
-      }
+      }  finally {
+      setLoading(false); // ✅ Jab data aa gaya ya error aaya
+    }
     };
     fetchMessages();
 
@@ -109,8 +114,9 @@ function PublicChat() {
 
 return (
   <div className="flex flex-col h-full w-full bg-white relative">
-    {/* Messages */}
-    <div className="flex-1 overflow-y-auto p-4 space-y-3">
+    {Loading ? ( <div className="flex items-center justify-center h-full">
+        <Spinner size={48} thickness={4} speed="0.3s" />
+      </div>) : (<div className="flex-1 overflow-y-auto p-4 space-y-3">
       {chats.map((chat, idx) => (
         <div key={idx} className="flex items-start justify-between space-x-2 w-full">
           <div
@@ -140,7 +146,8 @@ return (
         </div>
       ))}
       <div ref={messagesEndRef} />
-    </div>
+    </div>)}
+    
 
     {/* ✅ Fixed Input Bar at Bottom */}
     <ChatInputBar

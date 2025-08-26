@@ -6,6 +6,7 @@ function PrivateChat({ toUser, onClose }) {
   const [newMsg, setNewMsg] = useState("");
   const currentUser = localStorage.getItem("username"); // current logged-in user
   const messagesEndRef = useRef(null); // scroll reference
+  const [Loading, setLoading] = useState(false)
 
   // Scroll to bottom whenever messages change
   const scrollToBottom = () => {
@@ -81,7 +82,8 @@ function PrivateChat({ toUser, onClose }) {
 
 
   return (
-    <div className="fixed bottom-4 right-4 w-72 h-96 flex flex-col shadow-lg rounded-lg bg-gray-900 text-white border border-gray-700">
+    
+    Loading ? (div) : (<div className="fixed bottom-4 right-4 w-72 h-96 flex flex-col shadow-lg rounded-lg bg-gray-900 text-white border border-gray-700">
       {/* Header */}
       <div className="flex justify-between items-center px-3 py-2 bg-gray-800 rounded-t-lg">
         <h3 className="text-sm font-semibold">Chat with {toUser}</h3>
@@ -129,7 +131,9 @@ function PrivateChat({ toUser, onClose }) {
           Send
         </button>
       </div>
-    </div>
+    </div>)
+
+    
   );
 }
 
