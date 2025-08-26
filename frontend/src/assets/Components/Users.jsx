@@ -4,23 +4,30 @@ import socket from "../../socket"; // same socket instance
 import { X } from "lucide-react";
 import UserOptionsPopup from "./UserOptionsPopup";
 import SmallChatWindow from "./SmallChatWindow"; // ✅ import chat window
+import Spinner from "../ui/Spinner";
 
 function Users({ onClose }) {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const [optionsUser, setOptionsUser] = useState(null);
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 });
   const [selectedUser, setSelectedUser] = useState(null);
+  const [Loading, setLoading] = useState(false);
 
   const currentUser = localStorage.getItem("username");
 
   useEffect(() => {
     const fetchOnlineUsers = async () => {
+      setLoading(true);
       try {
-        const res = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/users/online`);
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/online`
+        );
         const filtered = res.data.filter((u) => u !== currentUser);
         setOnlineUsers(filtered);
       } catch (err) {
         console.error("Failed to fetch online users:", err);
+      } finally {
+        setLoading(false)
       }
     };
 
@@ -92,7 +99,10 @@ function Users({ onClose }) {
         </div>
 
         {/* Users List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2">
+
+        { Loading ? ( <div className="flex items-center justify-center h-full">
+                <Spinner size={25} thickness={2} speed="0.2s" />
+              </div> ) : ( <div className="flex-1 overflow-y-auto p-3 space-y-2">
           {onlineUsers.map((username, index) => (
             <div
               key={index}
@@ -108,7 +118,8 @@ function Users({ onClose }) {
               <p className="text-sm font-medium">{username}</p>
             </div>
           ))}
-        </div>
+        </div>)}
+       
       </div>
 
       {/* ✅ User Options Popup */}

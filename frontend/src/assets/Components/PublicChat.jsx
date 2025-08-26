@@ -115,7 +115,7 @@ function PublicChat() {
 return (
   <div className="flex flex-col h-full w-full bg-white relative">
     {Loading ? ( <div className="flex items-center justify-center h-full">
-        <Spinner size={48} thickness={4} speed="0.3s" />
+        <Spinner size={30} thickness={2} speed="0.2s" />
       </div>) : (<div className="flex-1 overflow-y-auto p-4 space-y-3">
       {chats.map((chat, idx) => (
         <div key={idx} className="flex items-start justify-between space-x-2 w-full">
