@@ -37,6 +37,8 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
+app.set("trust proxy", true);
+
 
 // Routes
 app.get("/", (req, res) => {
