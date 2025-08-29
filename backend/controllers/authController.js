@@ -10,7 +10,12 @@ function generateToken(user) {
 export const guestLogin = async (req, res) => {
   try {
     // IP fetch
-    const ip = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || // agar proxy use ho raha hai
+    req.socket?.remoteAddress; // direct connection
+
+    console.log(ip)
+
 
     // Username from body, fallback to auto-generated
     const username = req.body.username?.trim() || `guest_${Date.now()}`;
@@ -36,7 +41,9 @@ export const guestLogin = async (req, res) => {
 export const signup = async (req, res) => {
   try {
     const { username, email, password } = req.body;
-    const ip = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+    const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || // agar proxy use ho raha hai
+    req.socket?.remoteAddress; // direct connection
 
     const existing = await User.findOne({ email });
     if (existing) return res.status(400).json({ message: "Email already used" });
@@ -56,7 +63,9 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const ip = req.ip || req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+   const ip =
+    req.headers["x-forwarded-for"]?.split(",")[0] || // agar proxy use ho raha hai
+    req.socket?.remoteAddress; // direct connection
 
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "User not found" });
