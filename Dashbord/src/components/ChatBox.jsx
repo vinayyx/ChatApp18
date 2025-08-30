@@ -1,30 +1,62 @@
-import React, { useEffect, useRef } from "react";
+import axios from "axios";
+import { ClockFading } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 
-export default function ChatBox({ chatMessages, selectedUser }) {
-  const messagesEndRef = useRef(null);
+function ChatBox() {
+  const location = useLocation();
+  const [AllChats, setAllchats] = useState([]);
+
+  const selectedUser = location.state?.selectedUser;
+
+  const fatchUserAllchats = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/api/chats/${selectedUser._id}`
+      );
+
+      if (response) {
+        setAllchats(response.data.messages);
+      } else {
+        console.log("eror to find a All chats");
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chatMessages]);
+    fatchUserAllchats();
+  }, [selectedUser]);
+
+  console.log(AllChats);
 
   return (
-    <div className="flex-1 bg-white text-black shadow-lg p-4 rounded-lg h-[60vh] md:h-[80vh] flex flex-col">
-      <h2 className="font-bold text-lg mb-4">
-        Chat with {selectedUser?.username || "Select a user"}
-      </h2>
+   <div className="bg-gray-100 p-4 w-[85vw] rounded-lg shadow-md text-black">
+  <h1 className="text-lg font-bold mb-4">
+    All Conversation of {selectedUser.username}
+  </h1>
 
-      <div className="flex-1 overflow-y-auto border p-2 rounded mb-2">
-        {chatMessages.length === 0 && <p>No messages yet.</p>}
-
-        {chatMessages.map((msg, index) => (
-          <div key={index} className="mb-2">
-            <span className="font-semibold">{msg.fromUser}: </span>
-            <span>{msg.message}</span>
-          </div>
-        ))}
-
-        <div ref={messagesEndRef} />
+  {AllChats.length > 0 ? (
+    AllChats.map((chat, index) => (
+      <div
+        key={index}
+        className="flex justify-between items-center bg-white p-3 rounded-md mb-2 shadow-sm"
+      >
+        <p className="text-sm font-medium">{chat.message}</p>
+        <span className="text-xs text-gray-500" > {chat.toUser ? chat.toUser : "Public chat"} </span>
+        <span className="text-xs text-gray-500">
+          {new Date(chat.createdAt).toLocaleString()}
+        </span>
       </div>
-    </div>
+    ))
+  ) : (
+    <p className="text-gray-500 italic">No conversations yet...</p>
+  )}
+</div>
+
+
   );
 }
+
+export default ChatBox;

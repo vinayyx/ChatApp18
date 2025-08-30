@@ -1,88 +1,67 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import axios from "axios";
+import { MessageSquare, Bell } from "lucide-react"; 
+import UserContext from "../Context/UserContext";
 
-export default function UserList({ users = [], openChat, openNotification }) {
-  const [onlineUsers, setOnlineUsers] = useState([]);
+function UserList() {
+  const [users, setUsers] = useState([]);
+  const { navigate } = useContext(UserContext);
+
+  const fatchAllUsers = async () => {
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/db/users`
+      );
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
 
   useEffect(() => {
-    const fetchOnlineUsers = async () => {
-      try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_BACKEND_URL}/api/users/online`
-        );
-        setOnlineUsers(res.data || []);
-      } catch (err) {
-        console.error("Failed to fetch online users:", err);
-      }
-    };
-    fetchOnlineUsers();
+    fatchAllUsers();
   }, []);
 
-  if (!users || users.length === 0) {
-    return (
-      <div className="w-full md:w-96 p-4 bg-white shadow-lg rounded-lg">
-        No users found
-      </div>
-    );
-  }
-
-  const sortedUsers = [...users].sort((a, b) => {
-    const aOnline = onlineUsers.includes(a.username);
-    const bOnline = onlineUsers.includes(b.username);
-    return aOnline === bOnline ? 0 : aOnline ? -1 : 1;
-  });
-
   return (
-    <div className="w-full md:w-96 bg-white shadow-lg p-4 rounded-lg h-[60vh] md:h-[80vh] overflow-y-auto">
-      <h2 className="font-bold text-lg mb-4">Users ({users.length})</h2>
+    <div className="p-4 w-full md:w-full  md:h-[87vh] overflow-auto h-[90vh] text-black">
+      <h1 className="text-xl font-bold mb-4 text-center md:text-left">All Users</h1>
 
-      {sortedUsers.map((user) => {
-        const isOnline = onlineUsers.includes(user.username);
-        return (
+      {/* User List */}
+      <div className="space-y-3">
+        {users.map((user) => (
           <div
             key={user._id}
-            className="flex justify-between items-center p-2 border-b cursor-pointer hover:bg-gray-100"
+            className="w-full bg-gray-200 text-black rounded-xl shadow-md p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3"
           >
-            <div className="flex flex-col">
-              <div className="flex items-center gap-2">
-                <span>{user.username || "Guest"}</span>
-                <span
-                  className={`w-3 h-3 rounded-full ${
-                    isOnline ? "bg-green-500" : "bg-gray-400"
-                  } inline-block ml-2`}
-                  title={isOnline ? "Online" : "Offline"}
-                ></span>
-              </div>
-              {isOnline && (
-                <small className="text-green-600 text-xs">Online</small>
-              )}
-            </div>
+            {/* User Name */}
+            <h2 className="text-lg font-semibold text-center sm:text-left">
+              {user.username}
+            </h2>
 
-            <div className="flex flex-col items-end gap-1">
-              <small className="text-gray-500 text-xs">
-                Last login:{" "}
-                {user.lastLogin
-                  ? new Date(user.lastLogin).toLocaleString()
-                  : "N/A"}
-              </small>
-
+            {/* Actions */}
+            <div className="flex flex-wrap gap-3 justify-center sm:justify-end">
+              {/* Chat Button */}
               <button
-                onClick={() => openChat(user._id)}
-                className="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 text-xs"
+                onClick={() =>
+                  navigate("/allchats", { state: { selectedUser: user } })
+                }
+                className="flex items-center gap-1 bg-gray-300 hover:bg-gray-400 px-3 py-2 rounded-lg shadow-sm transition text-sm sm:text-base"
               >
-                Chat
+                <MessageSquare className="w-4 h-4" />
+                <span>Chat</span>
               </button>
 
-              <button
-                onClick={() => openNotification(user)} // pass selected user to Dashboard
-                className="bg-purple-500 text-white px-2 py-1 rounded hover:bg-purple-600 text-xs"
-              >
-                Send Notification
+              {/* Notification Button */}
+              <button className="flex items-center gap-1 bg-gray-300 hover:bg-gray-400 px-3 py-2 rounded-lg shadow-sm transition text-sm sm:text-base">
+                <Bell className="w-4 h-4" />
+                <span>Notify</span>
               </button>
             </div>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
+
+export default UserList;
